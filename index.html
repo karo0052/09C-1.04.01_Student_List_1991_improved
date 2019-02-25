@@ -181,7 +181,7 @@
       async function getJSON() {
         console.log("getJSON");
         const dataJson = await fetch(
-          "http://petlatkea.dk/2019/hogwarts/students.json"
+          "https://petlatkea.dk/2019/hogwarts/students.json"
         );
         myJSON = await dataJson.json();
         makeNewArray();
