@@ -1,0 +1,23 @@
+body {
+  background-color: aliceblue;
+}
+
+.gryffindor {
+  background-color: #ce3a0a;
+  color: #fdb02e;
+}
+
+.hufflepuff {
+  background-color: #ffc02a;
+  color: #0b0000;
+}
+
+.ravenclaw {
+  background-color: #395f9d;
+  color: #e9ba36;
+}
+
+.slytherin {
+  background-color: #588c39;
+  color: #c0b1c6;
+}
