@@ -105,6 +105,11 @@
       .data-name {
         cursor: pointer;
       }
+
+      .close {
+        font-weight: 900;
+        cursor: pointer;
+      }
     </style>
   </head>
   <body>
@@ -113,8 +118,8 @@
     <div class="dropdown">
       <button class="dropbtn">Sort</button>
       <div class="dropdown-content">
-        <p class="sort_button" data-sort="first">First name</p>
-        <p class="sort_button" data-sort="last">Last name</p>
+        <p class="sort_button" data-sort="firstname">First name</p>
+        <p class="sort_button" data-sort="lastname">Last name</p>
         <p class="sort_button" data-sort="house">House</p>
       </div>
     </div>
@@ -133,7 +138,10 @@
     <ul id="dest"></ul>
     <template class="temp">
       <li>
-        <h2 class="data-name"></h2>
+        <h2>
+          <span class="data-firstname"></span>
+          <span class="data-lastname"></span>
+        </h2>
         <p class="data-house"></p>
       </li>
     </template>
@@ -144,7 +152,6 @@
         <img class="student_picture" src="" alt="" />
         <div class="details">
           <p class="firstname"></p>
-          <p class="othername"></p>
           <p class="lastname"></p>
         </div>
         <img class="crest" src="" alt="" />
@@ -156,9 +163,9 @@
       document.addEventListener("DOMContentLoaded", getJSON);
 
       const destination = document.querySelector("#dest");
-      let myJSON;
-
       const studentlist = [];
+      const modal = document.querySelector(".modal");
+      const closeModal = document.querySelector(".close");
 
       const Student = {
         fullname: "-student fullname-",
@@ -171,40 +178,35 @@
         inquisitorialsquad: "-student inquisitorialsquad-",
         setJSONdata(studentData) {
           this.fullname = studentData.fullname;
+          const parts = studentData.fullname.split(" ");
+          this.firstname = parts[0];
+          this.lastname = parts[parts.length - 1];
           this.house = studentData.house;
+          const lastNameLower = parts[parts.length - 1].toLowerCase();
+          const firstLetterLower = parts[0].substring(0, 1).toLowerCase();
+          this.imagename = `images/${lastNameLower}_${firstLetterLower}.png`;
         }
       };
-
-      const modal = document.querySelector(".modal");
-      const closeModal = document.querySelector(".close");
 
       async function getJSON() {
         console.log("getJSON");
         const dataJson = await fetch(
           "https://petlatkea.dk/2019/hogwarts/students.json"
         );
-        myJSON = await dataJson.json();
-        makeNewArray();
+        const myJSON = await dataJson.json();
+        makeNewArray(myJSON);
       }
 
-      function makeNewArray() {
+      function makeNewArray(myJSON) {
         console.log("makeNewArray");
 
         myJSON.forEach(studentData => {
           const newStudent = Object.create(Student);
-          const lastSpace = studentData.fullname.lastIndexOf(" ");
-          const firstSpace = studentData.fullname.indexOf(" ");
-          newStudent.firstname = studentData.fullname.slice(0, firstSpace);
-          newStudent.lastname = studentData.fullname.slice(lastSpace + 1);
           newStudent.setJSONdata(studentData);
-          const lastNameLower = newStudent.lastname.toLowerCase();
-          const firstLetter = newStudent.firstname.substring(0, 1);
-          const firstLetterLower = firstLetter.toLowerCase();
-          newStudent.imagename = `images/${lastNameLower}_${firstLetterLower}.png`;
 
           studentlist.push(newStudent);
         });
-        console.log(studentlist);
+        // console.log(studentlist);
         displayStudentlist(studentlist);
       }
 
@@ -212,33 +214,45 @@
         console.log("displayStudentlist");
         destination.innerHTML = "";
 
-        let temp = document.querySelector(".temp");
+        list.forEach(displayStudent);
 
-        list.forEach(student => {
-          const clone = temp.cloneNode(true).content;
-
-          clone.querySelector(".data-name").textContent = student.fullname;
-          clone.querySelector(".data-name").addEventListener("click", () => {
-            visModal(student);
-          });
-          clone.querySelector(".data-house").textContent = student.house;
-          destination.appendChild(clone);
-        });
         document.querySelectorAll(".filter_button").forEach(button => {
           button.addEventListener("click", filterList);
         });
+
+        document.querySelectorAll(".sort_button").forEach(button => {
+          button.addEventListener("click", setSortFilter);
+        });
+
+        function setSortFilter() {
+          console.log("setSortFilter");
+          let sortFilter = this.dataset.sort;
+          sortList(sortFilter, list);
+        }
+      }
+
+      function displayStudent(student) {
+        const clone = document.querySelector(".temp").cloneNode(true).content;
+
+        clone.querySelector(".data-firstname").textContent = student.firstname;
+        clone.querySelector(".data-lastname").textContent = student.lastname;
+        clone.querySelector("h2").addEventListener("click", () => {
+          visModal(student);
+        });
+        clone.querySelector(".data-house").textContent = student.house;
+        destination.appendChild(clone);
       }
 
       function filterList() {
         console.log("filterList");
         //sæt filterHouse
-        const filterHouse = this.getAttribute("data-house");
-        console.log(filterHouse);
+        const filterHouse = this.dataset.house;
+
         if (filterHouse === "all") {
           displayStudentlist(studentlist);
         } else {
           const filtered = filterByHouse(filterHouse);
-          console.log(filtered);
+          // console.log(filtered);
           displayStudentlist(filtered);
         }
       }
@@ -249,7 +263,45 @@
           return student.house === house;
         }
         return studentlist.filter(filterHouse);
-        console.log(studentlist);
+      }
+
+      function sortList(filter, list) {
+        console.log("sortList");
+        // console.log(list);
+        let sorted;
+        if (filter === "firstname") {
+          sorted = list.sort(firstnameSort);
+        }
+        if (filter === "lastname") {
+          sorted = list.sort(lastnameSort);
+        }
+        if (filter === "house") {
+          sorted = list.sort(houseSort);
+        }
+
+        displayStudentlist(sorted);
+      }
+
+      function firstnameSort(a, b) {
+        if (a.firstname < b.firstname) {
+          return -1;
+        } else {
+          return 1;
+        }
+      }
+      function lastnameSort(a, b) {
+        if (a.lastname < b.lastname) {
+          return -1;
+        } else {
+          return 1;
+        }
+      }
+      function houseSort(a, b) {
+        if (a.house < b.house) {
+          return -1;
+        } else {
+          return 1;
+        }
       }
 
       function visModal(studenten) {
