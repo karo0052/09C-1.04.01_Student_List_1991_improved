@@ -1,5 +1,9 @@
 body {
-  background-color: aliceblue;
+  background-color: rgb(3, 3, 44);
+  font-family: "Tangerine", cursive;
+  display: grid;
+  grid-template-columns: 5vw, 50vw, 20vw, 20vw, 5vw;
+  grid-template-rows: 10vw, 5vw, 5vw, 5vw, 5vw, auto;
 }
 
 .gryffindor {
