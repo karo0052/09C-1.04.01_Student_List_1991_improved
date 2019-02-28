@@ -231,11 +231,6 @@
         overflow: hidden;
       }
 
-      .show {
-        opacity: 1;
-        pointer-events: all;
-      }
-
       .modal_open {
         overflow: hidden;
       }
@@ -248,6 +243,35 @@
         font-weight: 900;
         cursor: pointer;
       }
+
+      .denied_box {
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        overflow: scroll;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        transition: 0.5s;
+        pointer-events: none;
+      }
+
+      .denied_box_content {
+        width: 20vw;
+        padding: 15px;
+        overflow: hidden;
+        background-color: rgb(133, 33, 33);
+        font-family: sans-serif;
+      }
+
+      .show {
+        opacity: 1;
+        pointer-events: all;
+      }
     </style>
   </head>
   <body>
@@ -257,26 +281,26 @@
       <div class="dropdown s">
         <button class="dropbtn dropdown_sort"><p>Sort</p></button>
         <div class="dropdown-content">
-          <p class="sort_button" data-sort="firstname">First name</p>
-          <p class="sort_button" data-sort="lastname">Last name</p>
-          <p class="sort_button" data-sort="house">House</p>
+          <p class="sort_button" data-action="firstname">First name</p>
+          <p class="sort_button" data-action="lastname">Last name</p>
+          <p class="sort_button" data-action="house">House</p>
         </div>
       </div>
 
       <div class="dropdown f">
         <button class="dropbtn dropdown_filter"><p>Filter</p></button>
         <div class="dropdown-content">
-          <p class="filter_button" data-house="all">All</p>
-          <p class="filter_button" data-house="Hufflepuff">Hufflepuff</p>
-          <p class="filter_button" data-house="Gryffindor">Gryffindor</p>
-          <p class="filter_button" data-house="Ravenclaw">Ravenclaw</p>
-          <p class="filter_button" data-house="Slytherin">Slytherin</p>
+          <p class="filter_button" data-action="all">All</p>
+          <p class="filter_button" data-action="Hufflepuff">Hufflepuff</p>
+          <p class="filter_button" data-action="Gryffindor">Gryffindor</p>
+          <p class="filter_button" data-action="Ravenclaw">Ravenclaw</p>
+          <p class="filter_button" data-action="Slytherin">Slytherin</p>
         </div>
       </div>
 
       <div class="counters">
-        <p class="total_amount">Students:</p>
-        <p class="expelled_amount">Expelled students:</p>
+        <p class="total_amount">Students</p>
+        <p class="expelled_amount"></p>
         <p class="hufflepuff_amount">Hufflepuff-students:</p>
         <p class="gryffindor_amount">Gryffindor-students:</p>
         <p class="ravenclaw_amount">Ravenclaw-students:</p>
@@ -290,21 +314,33 @@
             <span class="data-lastname"></span>
           </h2>
           <p class="data-house"></p>
-          <button class="expell_button"></button>
+          <button class="expell_button" data-action="expell">
+            Expell student!
+          </button>
         </li>
       </template>
 
-      <section class="modal">
+      <section class="modal" data-action="close_modal">
         <div class="modal_content">
-          <p class="close">X</p>
+          <p class="close" data-action="close_modal">X</p>
           <img class="student_picture" src="" alt="" />
           <div class="details">
             <p class="firstname"></p>
             <p class="lastname"></p>
+            <p class="bloodstatus"></p>
           </div>
           <img class="crest" src="" alt="" />
+          <button class="inquisitorial_button" data-action="add_inquisitorial">
+            Add to inquisitorial squad!
+          </button>
         </div>
       </section>
+      <div class="denied_box" data-action="close_denied_box">
+        <div class="denied_box_content">
+          <p class="close" data-action="close_denied_box">X</p>
+          <h2>DENIED!</h2>
+        </div>
+      </div>
     </div>
     <script>
       "use strict";
@@ -339,37 +375,14 @@
       let sortFilter = "";
       let houseColor;
 
+      let bloodList;
+
       function init() {
         console.log("init");
 
-        document.querySelectorAll(".filter_button").forEach(button => {
-          button.addEventListener("click", setHouseFilter);
-        });
+        document.querySelector("#grid").addEventListener("click", clickPage);
 
-        function setHouseFilter() {
-          console.log("setHouseFilter");
-          houseFilter = this.dataset.house;
-          filterList(houseFilter);
-        }
-
-        document.querySelectorAll(".sort_button").forEach(button => {
-          button.addEventListener("click", setSortFilter);
-        });
-
-        function setSortFilter() {
-          console.log("setSortFilter");
-          sortFilter = this.dataset.sort;
-          filterList(houseFilter);
-        }
-
-        window.addEventListener("click", event => {
-          if (
-            event.target == document.querySelector(".modal") ||
-            event.target == document.querySelector(".close")
-          ) {
-            hideModal();
-          }
-        });
+        destination.addEventListener("click", clickList);
 
         getJSON();
       }
@@ -380,6 +393,13 @@
           "https://petlatkea.dk/2019/hogwarts/students.json"
         );
         const myJSON = await dataJson.json();
+
+        const moreJson = await fetch(
+          "http://petlatkea.dk/2019/hogwarts/families.json"
+        );
+        bloodList = await moreJson.json();
+        console.log(bloodList);
+
         prepareObjects(myJSON);
       }
 
@@ -393,11 +413,139 @@
           studentlist.push(newStudent);
         });
 
-        studentlist.forEach((student, i) => {
-          student.id = i + 1;
+        studentlist.forEach(student => {
+          student.id = uuidv4();
         });
         console.log(studentlist);
+        // countStudents();
+        checkNames();
+      }
+
+      function checkNames() {
+        console.log("checkNames");
+
+        studentlist.forEach(student => {
+          bloodList.half.forEach(name => {
+            if (name === student.lastname) {
+              student.bloodstatus = "half-blood";
+              console.log("der sker noget");
+            }
+          });
+          bloodList.pure.forEach(name => {
+            if (
+              name === student.lastname &&
+              student.bloodstatus === "-student bloodstatus-"
+            ) {
+              student.bloodstatus = "pure-blood";
+              console.log("der sker noget igen");
+            }
+          });
+          if (student.bloodstatus === "-student bloodstatus-") {
+            student.bloodstatus = "muggle-blood";
+            console.log("der er mugglere på hogwarts");
+          }
+        });
+
+        countStudents();
+      }
+
+      function countStudents() {
+        console.log("countStudents");
+
+        // update counters
+        const counts = {
+          Gryffindor: 0,
+          Slytherin: 0,
+          Hufflepuff: 0,
+          Ravenclaw: 0
+        };
+
+        studentlist.forEach(student => {
+          counts[student.house]++;
+        });
+
+        document.querySelector(".hufflepuff_amount").innerHTML =
+          counts.Hufflepuff + " Hufflepuff-students";
+
+        document.querySelector(".gryffindor_amount").innerHTML =
+          counts.Gryffindor + " Gryffindor-students";
+
+        document.querySelector(".slytherin_amount").innerHTML =
+          counts.Slytherin + " Slytherin-students";
+
+        document.querySelector(".ravenclaw_amount").innerHTML =
+          counts.Ravenclaw + " Ravenclaw-students";
+
+        document.querySelector(".expelled_amount").innerHTML =
+          expelledList.length + " Expelled students";
+        document.querySelector(".total_amount").innerHTML =
+          studentlist.length + " Students";
+
         filterList(houseFilter);
+      }
+
+      function clickPage(event) {
+        console.log("clickPage");
+        const action = event.target.dataset.action;
+        console.log(action);
+        if (
+          action === "firstname" ||
+          action === "lastname" ||
+          action === "house"
+        ) {
+          event.preventDefault();
+          sortFilter = action;
+          filterList(houseFilter);
+        }
+        if (
+          action === "all" ||
+          action === "Gryffindor" ||
+          action === "Ravenclaw" ||
+          action === "Hufflepuff" ||
+          action === "Slytherin"
+        ) {
+          event.preventDefault();
+          houseFilter = action;
+          filterList(houseFilter);
+        }
+        if (
+          action === "add_inquisitorial" ||
+          action === "remove_inquisitorial"
+        ) {
+          event.preventDefault();
+          clickedInquisitorial(event, action);
+        }
+
+        if (action === "close_modal") {
+          event.preventDefault();
+          hideModal();
+        }
+
+        if (action === "close_denied_box") {
+          event.preventDefault();
+          hideModal();
+          hideDenied();
+        }
+      }
+
+      function clickList(event) {
+        console.log("clickList");
+        const action = event.target.dataset.action;
+        if (action === "expell") {
+          event.preventDefault();
+          clickRemove(event);
+        }
+      }
+      function clickRemove(event) {
+        console.log("clickRemove");
+        const uniqueId = event.target.dataset.id;
+        const studentIndex = studentlist.findIndex(obj => obj.id === uniqueId);
+        const clickedStudent = studentlist.find(obj => obj.id === uniqueId);
+        expelledList.push(clickedStudent);
+        // TODO: Splice that element from the array
+        studentlist.splice(studentIndex, 1);
+        // Re-display the list
+        countStudents();
       }
 
       function filterList(houseFilter) {
@@ -411,7 +559,7 @@
       }
 
       function filterByHouse(house, list) {
-        // console.log("filterByHouse");
+        console.log("filterByHouse");
         function filterHouse(student) {
           return student.house === house;
         }
@@ -433,9 +581,7 @@
         if (sortFilter === "house") {
           sorted = list.sort(houseSort);
         }
-        // displayStudentlist(sorted);
-
-        filterByExpellStatus(list);
+        displayStudentlist(sorted);
       }
 
       function firstnameSort(a, b) {
@@ -460,25 +606,6 @@
         }
       }
 
-      function filterByExpellStatus(list) {
-        console.log("filterByExpellStatus");
-        const nonExpelled = list.filter(onlyNonExpelled);
-
-        expelledList = [];
-        list.forEach(student => {
-          if (student.expelled === "expelled") {
-            expelledList.push(student);
-          }
-        });
-
-        displayStudentlist(nonExpelled);
-      }
-
-      function onlyNonExpelled(student) {
-        console.log("onlyNonExpelled");
-        return student.expelled !== "expelled";
-      }
-
       function displayStudentlist(list) {
         console.log("displayStudentlist");
         destination.innerHTML = "";
@@ -495,12 +622,7 @@
           showModal(student);
         });
         clone.querySelector(".data-house").textContent = student.house;
-        clone.querySelector(".expell_button").textContent = "Expell student!";
-        clone.querySelector(".expell_button").addEventListener("click", () => {
-          student.expelled = "expelled";
-          expelledList.push(student);
-          filterList(houseFilter);
-        });
+        clone.querySelector(".expell_button").dataset.id = student.id;
 
         destination.appendChild(clone);
       }
@@ -511,6 +633,13 @@
         const modal = document.querySelector(".modal");
         const closeModal = document.querySelector(".close");
 
+        document.querySelector(".inquisitorial_button").style.backgroundColor =
+          "white";
+        document.querySelector(".inquisitorial_button").innerHTML =
+          "Add to inquisitorial squad!";
+        document.querySelector(".inquisitorial_button").dataset.action =
+          "add_inquisitorial";
+
         modal.classList.add("show");
         document.querySelector("body").classList.add("modal_open");
 
@@ -518,6 +647,16 @@
         document.querySelector(".modal_content").classList.add(houseColor);
 
         modal.querySelector(".student_picture").src = studenten.imagename;
+
+        if (studenten.firstname === "Justin") {
+          console.log("det er fletchly");
+          modal.querySelector(".student_picture").src =
+            "images/fletchley_j.png";
+        }
+        if (studenten.lastname === "-unknown-") {
+          modal.querySelector(".student_picture").src = "images/unknown.png";
+        }
+
         modal.querySelector(".student_picture").alt = `Picture of ${
           studenten.fullname
         }`;
@@ -526,10 +665,24 @@
           "Firstname: " + studenten.firstname;
         modal.querySelector(".lastname").innerHTML =
           "Lastname: " + studenten.lastname;
+        modal.querySelector(".bloodstatus").innerHTML =
+          "Bloodstatus: " + studenten.bloodstatus;
+
         modal.querySelector(".crest").src =
           "images/" + studenten.house + ".png";
         modal.querySelector(".crest").alt =
           "Picture of " + studenten.house + "s crest.";
+
+        modal.querySelector(".inquisitorial_button").dataset.id = studenten.id;
+        if (studenten.inquisitorialsquad === "Yes") {
+          document.querySelector(
+            ".inquisitorial_button"
+          ).style.backgroundColor = "red";
+          document.querySelector(".inquisitorial_button").innerHTML =
+            "Remove from inquisitorial squad";
+          document.querySelector(".inquisitorial_button").dataset.action =
+            "remove_inquisitorial";
+        }
       }
 
       function hideModal() {
@@ -538,6 +691,57 @@
         document.querySelector(".modal").classList.remove("show");
         document.querySelector("body").classList.remove("modal_open");
         document.querySelector(".modal_content").classList.remove(houseColor);
+      }
+
+      function clickedInquisitorial(event, action) {
+        const uniqueId = event.target.dataset.id;
+        const clickedStudent = studentlist.find(obj => obj.id === uniqueId);
+
+        if (action === "add_inquisitorial") {
+          if (
+            clickedStudent.bloodstatus === "pure-blood" ||
+            clickedStudent.house === "Slytherin"
+          ) {
+            console.log("må gerne");
+            clickedStudent.inquisitorialsquad = "Yes";
+            event.target.style.backgroundColor = "red";
+            event.target.innerHTML = "Remove from inquisitorial squad";
+            event.target.dataset.action = "remove_inquisitorial";
+            filterList(houseFilter);
+          } else {
+            console.log("rend og hop");
+            showDenied();
+          }
+        }
+        if (action === "remove_inquisitorial") {
+          clickedStudent.inquisitorialsquad = "-student inquisitorialsquad-";
+          event.target.style.backgroundColor = "white";
+          event.target.innerHTML = "Add to inquisitorial squad";
+          event.target.dataset.action = "add_inquisitorial";
+          filterList(houseFilter);
+        }
+      }
+
+      function showDenied() {
+        console.log("showDenied");
+        document.querySelector(".denied_box").classList.add("show");
+      }
+
+      function hideDenied() {
+        console.log("hideDenied");
+        document.querySelector(".denied_box").classList.remove("show");
+      }
+
+      // creates a unique id
+      // copyed from https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+      function uuidv4() {
+        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(
+          c
+        ) {
+          var r = (Math.random() * 16) | 0,
+            v = c == "x" ? r : (r & 0x3) | 0x8;
+          return v.toString(16);
+        });
       }
     </script>
 
