@@ -10,12 +10,6 @@
       rel="stylesheet"
     />
     <style>
-      /* li:nth-of-type(even) {
-        background-color: rgba(199, 72, 72, 0.51);
-      }
-      li:nth-of-type(odd) {
-        background-color: rgba(201, 201, 201, 0.51);
-      } */
       body {
         background-color: rgb(3, 3, 44);
         font-family: "Tangerine", cursive;
@@ -95,7 +89,6 @@
         margin: 0;
       }
 
-      /* sort button */
       .dropbtn {
         border: none;
         cursor: pointer;
@@ -165,7 +158,6 @@
       }
 
       .dropdown-content p {
-        color: black;
         padding: 12px 16px;
         text-decoration: none;
         display: block;
@@ -183,9 +175,13 @@
         background-color: rgb(68, 47, 31);
       }
       .dropdown:hover .dropbtn {
-        /* background-color: #3e8e41; */
         transform: scale(1.1);
         background-color: #c9741f;
+      }
+
+      .active {
+        background-color: rgb(68, 47, 31);
+        color: white;
       }
 
       .expell_button {
@@ -229,6 +225,9 @@
         max-width: 80vw;
         padding: 15px;
         overflow: hidden;
+        display: grid;
+        grid-template-columns: 3vw 14vw 5vw;
+        grid-template-rows: 2vw 4vw 5vw 3vw 6vw 5vw;
       }
 
       .modal_open {
@@ -242,6 +241,47 @@
       .close {
         font-weight: 900;
         cursor: pointer;
+        justify-self: end;
+      }
+
+      .close {
+        grid-row-start: 1;
+        grid-row-end: 2;
+        grid-column-start: 3;
+        grid-column-end: 4;
+      }
+
+      .student_picture {
+        grid-row-start: 3;
+        grid-row-end: 5;
+        grid-column-start: 2;
+        grid-column-end: 3;
+        width: 7vw;
+      }
+
+      .details {
+        grid-row-start: 5;
+        grid-row-end: 6;
+        grid-column-start: 2;
+        grid-column-end: 3;
+      }
+
+      .crest {
+        grid-row-start: 2;
+        grid-row-end: 4;
+        grid-column-start: 3;
+        grid-column-end: 4;
+        width: 100%;
+      }
+      .inquisitorial_button {
+        grid-row-start: 6;
+        grid-row-end: 7;
+        grid-column-start: 2;
+        grid-column-end: 3;
+        width: 14vw;
+        height: 2vw;
+        font-weight: 900;
+        font-size: 0.7vw;
       }
 
       .denied_box {
@@ -272,6 +312,96 @@
         opacity: 1;
         pointer-events: all;
       }
+
+      .warning_box {
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        overflow: scroll;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        transition: 0.3s;
+        pointer-events: none;
+      }
+      .warning_box h1 {
+        font-size: 9vw;
+        margin-top: 5vw;
+      }
+
+      .warning_box_content button {
+        width: 10vw;
+        height: 10vh;
+        font-weight: 900;
+        font-size: 2vw;
+        margin: 4vw;
+      }
+
+      .warning_box_content {
+        width: 100vw;
+        height: 100vh;
+        padding: 15px;
+        overflow: hidden;
+        background-color: rgb(133, 33, 33);
+        font-family: sans-serif;
+        text-align: center;
+      }
+
+      .warning_box_animation {
+        animation-name: warning_blink;
+        animation-duration: 5s;
+        animation-timing-function: linear;
+        animation-iteration-count: infinite;
+      }
+
+      @keyframes warning_blink {
+        0% {
+          opacity: 1;
+        }
+
+        10% {
+          opacity: 0.7;
+        }
+
+        20% {
+          opacity: 1;
+        }
+        30% {
+          opacity: 0.7;
+        }
+
+        40% {
+          opacity: 1;
+        }
+
+        50% {
+          opacity: 0.7;
+        }
+        60% {
+          opacity: 1;
+        }
+
+        70% {
+          opacity: 0.7;
+        }
+        80% {
+          opacity: 1;
+        }
+        90% {
+          opacity: 0.7;
+        }
+
+        100% {
+          opacity: 1;
+        }
+      }
+      .heavy {
+        font-weight: 900;
+      }
     </style>
   </head>
   <body>
@@ -290,7 +420,7 @@
       <div class="dropdown f">
         <button class="dropbtn dropdown_filter"><p>Filter</p></button>
         <div class="dropdown-content">
-          <p class="filter_button" data-action="all">All</p>
+          <p class="filter_button active" data-action="all">All</p>
           <p class="filter_button" data-action="Hufflepuff">Hufflepuff</p>
           <p class="filter_button" data-action="Gryffindor">Gryffindor</p>
           <p class="filter_button" data-action="Ravenclaw">Ravenclaw</p>
@@ -299,12 +429,12 @@
       </div>
 
       <div class="counters">
-        <p class="total_amount">Students</p>
+        <p class="total_amount"></p>
         <p class="expelled_amount"></p>
-        <p class="hufflepuff_amount">Hufflepuff-students:</p>
-        <p class="gryffindor_amount">Gryffindor-students:</p>
-        <p class="ravenclaw_amount">Ravenclaw-students:</p>
-        <p class="slytherin_amount">Slytherin-students:</p>
+        <p class="hufflepuff_amount"></p>
+        <p class="gryffindor_amount"></p>
+        <p class="ravenclaw_amount"></p>
+        <p class="slytherin_amount"></p>
       </div>
       <ul id="dest"></ul>
       <template class="temp">
@@ -342,6 +472,18 @@
         </div>
       </div>
     </div>
+    <div class="warning_box">
+      <div class="warning_box_content" data-action="scale_button">
+        <h1>YOU'LL NEVER GET RID OF ME!!!!!</h1>
+        <button class="got_it" data-action="close_warning">Got it?</button>
+      </div>
+    </div>
+    <audio
+      id="siren_noise"
+      src="Siren_Noise-KevanGC-1337458893.mp3"
+      loop
+    ></audio>
+
     <script>
       "use strict";
       document.addEventListener("DOMContentLoaded", init);
@@ -382,7 +524,9 @@
 
         document.querySelector("#grid").addEventListener("click", clickPage);
 
-        destination.addEventListener("click", clickList);
+        document
+          .querySelector(".warning_box")
+          .addEventListener("click", clickWarning);
 
         getJSON();
       }
@@ -398,7 +542,7 @@
           "https://petlatkea.dk/2019/hogwarts/families.json"
         );
         bloodList = await moreJson.json();
-        console.log(bloodList);
+        // console.log(bloodList);
 
         prepareObjects(myJSON);
       }
@@ -413,11 +557,24 @@
           studentlist.push(newStudent);
         });
 
+        const myProfile = {
+          fullname: "Karoline Sigrid",
+          firstname: "Karoline",
+          lastname: "Lüthje",
+          imagename: "images/myimage.png",
+          house: "Gryffindor",
+          expelled: "-student expelled-",
+          bloodstatus: "pure-blood",
+          inquisitorialsquad: "-student inquisitorialsquad-"
+        };
+
+        studentlist.push(myProfile);
+
         studentlist.forEach(student => {
           student.id = uuidv4();
         });
-        console.log(studentlist);
-        // countStudents();
+        // console.log(studentlist);
+
         checkNames();
       }
 
@@ -428,7 +585,6 @@
           bloodList.half.forEach(name => {
             if (name === student.lastname) {
               student.bloodstatus = "half-blood";
-              console.log("der sker noget");
             }
           });
           bloodList.pure.forEach(name => {
@@ -437,14 +593,39 @@
               student.bloodstatus === "-student bloodstatus-"
             ) {
               student.bloodstatus = "pure-blood";
-              console.log("der sker noget igen");
             }
           });
           if (student.bloodstatus === "-student bloodstatus-") {
             student.bloodstatus = "muggle-blood";
-            console.log("der er mugglere på hogwarts");
           }
         });
+
+        hackedBloodstatus();
+      }
+
+      function hackedBloodstatus() {
+        console.log("hackedBloodstatus");
+
+        studentlist.forEach(student => {
+          const randomValue = Math.random();
+          if (student.bloodstatus === "pure-blood") {
+            if (randomValue < 0.5) {
+              student.bloodstatus = "half-blood";
+            }
+            if (randomValue > 0.5) {
+              student.bloodstatus = "muggle-blood";
+            }
+          } else if (
+            student.bloodstatus === "half-blood" ||
+            student.bloodstatus === "muggle-blood"
+          ) {
+            student.bloodstatus = "pure-blood";
+          }
+        });
+
+        studentlist[
+          studentlist.findIndex(obj => obj.lastname === "Lüthje")
+        ].bloodstatus = "pure-blood";
 
         countStudents();
       }
@@ -487,7 +668,7 @@
       function clickPage(event) {
         console.log("clickPage");
         const action = event.target.dataset.action;
-        console.log(action);
+        // console.log(action);
         if (
           action === "firstname" ||
           action === "lastname" ||
@@ -495,6 +676,11 @@
         ) {
           event.preventDefault();
           sortFilter = action;
+
+          document.querySelectorAll(".sort_button").forEach(button => {
+            button.classList.remove("active");
+          });
+          event.target.classList.add("active");
           filterList(houseFilter);
         }
         if (
@@ -506,6 +692,11 @@
         ) {
           event.preventDefault();
           houseFilter = action;
+
+          document.querySelectorAll(".filter_button").forEach(button => {
+            button.classList.remove("active");
+          });
+          event.target.classList.add("active");
           filterList(houseFilter);
         }
         if (
@@ -526,26 +717,57 @@
           hideModal();
           hideDenied();
         }
-      }
-
-      function clickList(event) {
-        console.log("clickList");
-        const action = event.target.dataset.action;
         if (action === "expell") {
           event.preventDefault();
           clickRemove(event);
         }
       }
+
       function clickRemove(event) {
         console.log("clickRemove");
         const uniqueId = event.target.dataset.id;
         const studentIndex = studentlist.findIndex(obj => obj.id === uniqueId);
         const clickedStudent = studentlist.find(obj => obj.id === uniqueId);
-        expelledList.push(clickedStudent);
-        // TODO: Splice that element from the array
-        studentlist.splice(studentIndex, 1);
+
+        if (clickedStudent.lastname === "Lüthje") {
+          document.querySelector(".warning_box").style.opacity = 1;
+          document.querySelector(".warning_box").style.pointerEvents = "all";
+          document
+            .querySelector(".warning_box")
+            .classList.add("warning_box_animation");
+          document.querySelector("#grid").style.pointerEvents = "none";
+          document.querySelector("#siren_noise").play();
+        } else {
+          expelledList.push(clickedStudent);
+          // TODO: Splice that element from the array
+          studentlist.splice(studentIndex, 1);
+        }
         // Re-display the list
         countStudents();
+      }
+
+      function clickWarning(event) {
+        console.log("clickWarning");
+        const action = event.target.dataset.action;
+
+        if (action === "close_warning") {
+          closeWarning();
+        }
+        if (action === "scale_button") {
+          document.querySelector(".got_it").style.transform = "scale(2)";
+        }
+      }
+
+      function closeWarning() {
+        console.log("closeWarning");
+        document.querySelector(".got_it").style.transform = "scale(1)";
+        document.querySelector(".warning_box").style.pointerEvents = "none";
+        document.querySelector(".warning_box").style.opacity = 0;
+        document
+          .querySelector(".warning_box")
+          .classList.remove("warning_box_animation");
+        document.querySelector("#grid").style.pointerEvents = "all";
+        document.querySelector("#siren_noise").pause();
       }
 
       function filterList(houseFilter) {
@@ -610,7 +832,7 @@
         console.log("displayStudentlist");
         destination.innerHTML = "";
         list.forEach(displayStudent, list);
-        console.log(list);
+        // console.log(list);
       }
 
       function displayStudent(student, list) {
@@ -633,12 +855,7 @@
         const modal = document.querySelector(".modal");
         const closeModal = document.querySelector(".close");
 
-        document.querySelector(".inquisitorial_button").style.backgroundColor =
-          "white";
-        document.querySelector(".inquisitorial_button").innerHTML =
-          "Add to inquisitorial squad!";
-        document.querySelector(".inquisitorial_button").dataset.action =
-          "add_inquisitorial";
+        modal.dataset.status = "modal_is_open";
 
         modal.classList.add("show");
         document.querySelector("body").classList.add("modal_open");
@@ -649,7 +866,6 @@
         modal.querySelector(".student_picture").src = studenten.imagename;
 
         if (studenten.firstname === "Justin") {
-          console.log("det er fletchly");
           modal.querySelector(".student_picture").src =
             "images/fletchley_j.png";
         }
@@ -662,11 +878,11 @@
         }`;
 
         modal.querySelector(".firstname").innerHTML =
-          "Firstname: " + studenten.firstname;
+          "<span class='heavy'>Firstname: </span>" + studenten.firstname;
         modal.querySelector(".lastname").innerHTML =
-          "Lastname: " + studenten.lastname;
+          "<span class='heavy'>Lastname:  </span>" + studenten.lastname;
         modal.querySelector(".bloodstatus").innerHTML =
-          "Bloodstatus: " + studenten.bloodstatus;
+          "<span class='heavy'>Bloodstatus: </span>" + studenten.bloodstatus;
 
         modal.querySelector(".crest").src =
           "images/" + studenten.house + ".png";
@@ -674,14 +890,27 @@
           "Picture of " + studenten.house + "s crest.";
 
         modal.querySelector(".inquisitorial_button").dataset.id = studenten.id;
+
+        showInquisitorialStatus(studenten);
+      }
+
+      function showInquisitorialStatus(studenten) {
         if (studenten.inquisitorialsquad === "Yes") {
           document.querySelector(
             ".inquisitorial_button"
-          ).style.backgroundColor = "red";
+          ).style.backgroundColor = "rgba(150, 30, 30, 0.856)";
           document.querySelector(".inquisitorial_button").innerHTML =
             "Remove from inquisitorial squad";
           document.querySelector(".inquisitorial_button").dataset.action =
             "remove_inquisitorial";
+        } else {
+          document.querySelector(
+            ".inquisitorial_button"
+          ).style.backgroundColor = "white";
+          document.querySelector(".inquisitorial_button").innerHTML =
+            "Add to inquisitorial squad";
+          document.querySelector(".inquisitorial_button").dataset.action =
+            "add_inquisitorial";
         }
       }
 
@@ -691,6 +920,8 @@
         document.querySelector(".modal").classList.remove("show");
         document.querySelector("body").classList.remove("modal_open");
         document.querySelector(".modal_content").classList.remove(houseColor);
+
+        document.querySelector(".modal").dataset.status = "modal_is_closed";
       }
 
       function clickedInquisitorial(event, action) {
@@ -702,22 +933,29 @@
             clickedStudent.bloodstatus === "pure-blood" ||
             clickedStudent.house === "Slytherin"
           ) {
-            console.log("må gerne");
             clickedStudent.inquisitorialsquad = "Yes";
-            event.target.style.backgroundColor = "red";
-            event.target.innerHTML = "Remove from inquisitorial squad";
-            event.target.dataset.action = "remove_inquisitorial";
+            showModal(clickedStudent);
             filterList(houseFilter);
+
+            setTimeout(function() {
+              clickedStudent.inquisitorialsquad =
+                "-student inquisitorialsquad-";
+
+              // TODO: Only update IF modal is still displayed for THIS student!!!
+              if (
+                document.querySelector(".modal").dataset.status ===
+                "modal_is_open"
+              ) {
+                showInquisitorialStatus(clickedStudent);
+              }
+            }, 7000);
           } else {
-            console.log("rend og hop");
             showDenied();
           }
         }
         if (action === "remove_inquisitorial") {
           clickedStudent.inquisitorialsquad = "-student inquisitorialsquad-";
-          event.target.style.backgroundColor = "white";
-          event.target.innerHTML = "Add to inquisitorial squad";
-          event.target.dataset.action = "add_inquisitorial";
+          showModal(clickedStudent);
           filterList(houseFilter);
         }
       }
