@@ -342,11 +342,11 @@ function houseSort(a, b) {
 function displayStudentlist(list) {
   console.log("displayStudentlist");
   destination.innerHTML = "";
-  list.forEach(displayStudent, list);
+  list.forEach(displayStudent);
   // console.log(list);
 }
 
-function displayStudent(student, list) {
+function displayStudent(student) {
   const clone = document.querySelector(".temp").cloneNode(true).content;
 
   clone.querySelector(".data-firstname").textContent = student.firstname;
@@ -364,7 +364,6 @@ function showModal(studenten) {
   console.log("showModal");
 
   const modal = document.querySelector(".modal");
-  const closeModal = document.querySelector(".close");
 
   modal.dataset.status = "modal_is_open";
 
